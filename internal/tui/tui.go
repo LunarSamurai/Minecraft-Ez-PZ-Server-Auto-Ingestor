@@ -59,7 +59,8 @@ type Model struct {
 	ready        bool
 	inputFocused bool
 	quitting     bool
-	focusPanel   int // 0=console, 1=players
+	focusPanel   int
+	autoScroll   bool
 
 	tpsHistory    []float64
 	memoryHistory []float64
@@ -114,6 +115,7 @@ func NewModel(config *server.Config) *Model {
 		memoryHistory:   make([]float64, 0, 60),
 		cpuHistory:      make([]float64, 0, 60),
 		playerEvents:    make([]PlayerEvent, 0, 100),
+		autoScroll:      true,
 	}
 }
 
@@ -168,6 +170,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "up", "k":
 			if !m.inputFocused {
+				m.autoScroll = false
 				if m.focusPanel == 0 || !m.showSidePanel() {
 					m.consoleViewport.LineUp(1)
 				} else {
@@ -184,11 +187,17 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "pgup":
 			if !m.inputFocused {
+				m.autoScroll = false
 				m.consoleViewport.HalfViewUp()
 			}
 		case "pgdown":
 			if !m.inputFocused {
 				m.consoleViewport.HalfViewDown()
+			}
+		case "end":
+			if !m.inputFocused {
+				m.autoScroll = true
+				m.consoleViewport.GotoBottom()
 			}
 		}
 
@@ -221,18 +230,25 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cpuHistory = m.cpuHistory[1:]
 			}
 
-			select {
-			case line := <-m.srv.OutputChan():
-				m.consoleLines = append(m.consoleLines, line)
-				if len(m.consoleLines) > 1000 {
-					m.consoleLines = m.consoleLines[1:]
+			// Read ALL available lines (fast drain)
+			for {
+				select {
+				case line := <-m.srv.OutputChan():
+					coloredLine := m.colorizeConsoleLine(line)
+					m.consoleLines = append(m.consoleLines, coloredLine)
+					if len(m.consoleLines) > 1000 {
+						m.consoleLines = m.consoleLines[1:]
+					}
+					m.parsePlayerEvent(line)
+				default:
+					goto doneReading
 				}
-				m.consoleViewport.SetContent(strings.Join(m.consoleLines, "\n"))
-				m.consoleViewport.GotoBottom()
-				m.parsePlayerEvent(line)
-			default:
 			}
-
+		doneReading:
+			m.consoleViewport.SetContent(strings.Join(m.consoleLines, "\n"))
+			if m.autoScroll {
+				m.consoleViewport.GotoBottom()
+			}
 			m.playerViewport.SetContent(m.renderPlayerPanel())
 		}
 
@@ -252,21 +268,63 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-// showSidePanel returns true if there's enough width for the side panel
+func (m *Model) colorizeConsoleLine(line string) string {
+	lowerLine := strings.ToLower(line)
+
+	// Server started - bright green bold
+	if strings.Contains(lowerLine, "done (") && strings.Contains(lowerLine, "for help") {
+		return lipgloss.NewStyle().Foreground(successColor).Bold(true).Render(line)
+	}
+
+	// Player joined - green
+	if strings.Contains(line, "joined the game") {
+		return lipgloss.NewStyle().Foreground(successColor).Render(line)
+	}
+
+	// Player left - red
+	if strings.Contains(line, "left the game") {
+		return lipgloss.NewStyle().Foreground(errorColor).Render(line)
+	}
+
+	// Player death - orange/yellow
+	if strings.Contains(lowerLine, "was slain") || strings.Contains(lowerLine, "died") ||
+		strings.Contains(lowerLine, "was killed") || strings.Contains(lowerLine, "drowned") ||
+		strings.Contains(lowerLine, "burned") || strings.Contains(lowerLine, "fell") ||
+		strings.Contains(lowerLine, "was shot") || strings.Contains(lowerLine, "blew up") ||
+		strings.Contains(lowerLine, "hit the ground") || strings.Contains(lowerLine, "went up in flames") {
+		return lipgloss.NewStyle().Foreground(warningColor).Render(line)
+	}
+
+	// Errors - red
+	if strings.Contains(lowerLine, "error") || strings.Contains(lowerLine, "exception") ||
+		strings.Contains(lowerLine, "failed") || strings.Contains(lowerLine, "crash") {
+		return lipgloss.NewStyle().Foreground(errorColor).Render(line)
+	}
+
+	// Warnings - yellow
+	if strings.Contains(lowerLine, "warn") {
+		return lipgloss.NewStyle().Foreground(warningColor).Render(line)
+	}
+
+	// Server starting/loading - dim purple
+	if strings.Contains(lowerLine, "loading") || strings.Contains(lowerLine, "starting") {
+		return lipgloss.NewStyle().Foreground(primaryColor).Render(line)
+	}
+
+	return line
+}
+
 func (m *Model) showSidePanel() bool {
 	return m.width >= 80
 }
 
-// recalculateLayout adjusts all viewport sizes based on current terminal size
 func (m *Model) recalculateLayout() {
-	// Reserve space: 1 status + 1 input + 1 help + 2 borders = 5 lines minimum
 	panelHeight := m.height - 5
 	if panelHeight < 5 {
 		panelHeight = 5
 	}
 
 	if m.showSidePanel() {
-		// Two-panel mode: 70% console, 30% side panel
 		rightWidth := m.width * 30 / 100
 		if rightWidth < 20 {
 			rightWidth = 20
@@ -274,14 +332,13 @@ func (m *Model) recalculateLayout() {
 		if rightWidth > 35 {
 			rightWidth = 35
 		}
-		leftWidth := m.width - rightWidth - 3 // 3 for gap and borders
+		leftWidth := m.width - rightWidth - 3
 
 		m.consoleViewport.Width = leftWidth - 2
 		m.consoleViewport.Height = panelHeight - 2
 		m.playerViewport.Width = rightWidth - 2
 		m.playerViewport.Height = panelHeight - 2
 	} else {
-		// Single-panel mode: console only
 		m.consoleViewport.Width = m.width - 4
 		m.consoleViewport.Height = panelHeight - 2
 	}
@@ -334,7 +391,6 @@ func (m *Model) renderPlayerPanel() string {
 	var b strings.Builder
 	panelWidth := m.playerViewport.Width
 
-	// Players section
 	header := fmt.Sprintf("👥 PLAYERS %d/%d", m.serverStats.PlayerCount, m.serverStats.MaxPlayers)
 	b.WriteString(headerStyle.Render(header) + "\n")
 	b.WriteString(dimStyle.Render(strings.Repeat("─", panelWidth)) + "\n")
@@ -353,7 +409,6 @@ func (m *Model) renderPlayerPanel() string {
 	b.WriteString(headerStyle.Render("📋 EVENTS") + "\n")
 	b.WriteString(dimStyle.Render(strings.Repeat("─", panelWidth)) + "\n")
 
-	// Show as many events as will fit
 	maxEvents := (m.playerViewport.Height - 10) / 1
 	if maxEvents < 3 {
 		maxEvents = 3
@@ -389,7 +444,6 @@ func (m *Model) renderPlayerPanel() string {
 		}
 	}
 
-	// Commands section - only if there's room
 	remainingHeight := m.playerViewport.Height - strings.Count(b.String(), "\n") - 3
 	if remainingHeight > 4 {
 		b.WriteString("\n")
@@ -416,20 +470,16 @@ func (m *Model) View() string {
 		return "Shutting down...\n"
 	}
 
-	// Recalculate on every render to stay responsive
 	m.recalculateLayout()
 
 	var b strings.Builder
 
-	// Status bar - adapts to width
 	b.WriteString(m.renderStatusBar())
 	b.WriteString("\n")
 
-	// Main content area
 	m.consoleViewport.SetContent(strings.Join(m.consoleLines, "\n"))
 
 	if m.showSidePanel() {
-		// Two-panel layout
 		leftBorderColor := borderColor
 		if m.focusPanel == 0 {
 			leftBorderColor = primaryColor
@@ -455,7 +505,6 @@ func (m *Model) View() string {
 
 		b.WriteString(lipgloss.JoinHorizontal(lipgloss.Top, consoleBox, " ", rightBox))
 	} else {
-		// Single-panel layout
 		consoleStyle := lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(primaryColor).
@@ -466,14 +515,12 @@ func (m *Model) View() string {
 	}
 	b.WriteString("\n")
 
-	// Input line
 	prefix := dimStyle.Render("> ")
 	if m.inputFocused {
 		prefix = lipgloss.NewStyle().Foreground(primaryColor).Render("> ")
 	}
 	b.WriteString(prefix + m.commandInput.View() + "\n")
 
-	// Help line - adapts to width
 	b.WriteString(m.renderHelpLine())
 
 	return b.String()
@@ -516,9 +563,7 @@ func (m *Model) renderStatusBar() string {
 	memStyle := lipgloss.NewStyle().Foreground(lipgloss.Color(stats.MemoryColor(memPct)))
 	cpuStyle := lipgloss.NewStyle().Foreground(lipgloss.Color(stats.CPUColor(m.serverStats.CPUPercent)))
 
-	// Compact vs expanded based on width
 	if m.width < 60 {
-		// Ultra compact
 		return fmt.Sprintf("%s%s T:%.0f M:%.0f%% P:%d",
 			statusIcon,
 			statusStyle.Render(statusText[:1]),
@@ -527,7 +572,6 @@ func (m *Model) renderStatusBar() string {
 			m.serverStats.PlayerCount,
 		)
 	} else if m.width < 90 {
-		// Compact
 		return fmt.Sprintf("%s %s │ TPS:%s │ Mem:%s │ P:%d/%d",
 			statusIcon,
 			statusStyle.Render(statusText),
@@ -537,7 +581,6 @@ func (m *Model) renderStatusBar() string {
 			m.serverStats.MaxPlayers,
 		)
 	} else {
-		// Full
 		return fmt.Sprintf("%s %s │ TPS: %s │ Mem: %s │ CPU: %s │ Players: %d/%d │ Uptime: %s",
 			statusIcon,
 			statusStyle.Render(statusText),
@@ -553,16 +596,16 @@ func (m *Model) renderStatusBar() string {
 
 func (m *Model) renderHelpLine() string {
 	if m.width < 50 {
-		return dimStyle.Render("[Tab]In [R]Rst [Q]Quit")
+		return dimStyle.Render("[Tab]In [End]Bottom [Q]Quit")
 	} else if m.width < 80 {
-		return dimStyle.Render("[Tab]Input [↑↓]Scroll [R]Restart [S]Stop [Q]Quit")
+		return dimStyle.Render("[Tab]Input [↑↓]Scroll [End]Bottom [R]Restart [Q]Quit")
 	} else {
-		return dimStyle.Render("[Tab]Input [←→]Panel [↑↓/PgUp/PgDn]Scroll [R]Restart [S]Start/Stop [Q]Quit")
+		return dimStyle.Render("[Tab]Input [←→]Panel [↑↓/PgUp/PgDn]Scroll [End]AutoScroll [R]Restart [S]Start/Stop [Q]Quit")
 	}
 }
 
 func tickCmd() tea.Cmd {
-	return tea.Tick(500*time.Millisecond, func(t time.Time) tea.Msg {
+	return tea.Tick(100*time.Millisecond, func(t time.Time) tea.Msg {
 		return tickMsg(t)
 	})
 }
