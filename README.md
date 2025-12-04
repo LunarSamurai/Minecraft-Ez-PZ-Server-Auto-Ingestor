@@ -13,15 +13,15 @@ A high-performance, feature-rich Minecraft server manager written in Go with a b
 ## 📥 Download
 
 <p align="left">
-  <a href="https://github.com/LunarSamurai/Minecraft-Ez-PZ-Server-Auto-Ingestor/releases/download/latest/mcserver-ez-pz.exe">
+  <a href="https://github.com/LunarSamurai/Minecraft-Ez-PZ-Server-Auto-Ingestor/releases/download/v1.0.0/mcserver-ez-pz.exe">
     <img src="https://img.shields.io/badge/Download-Windows%20(.exe)-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="Download for Windows"/>
   </a>
   &nbsp;&nbsp;
-  <a href="https://github.com/LunarSamurai/Minecraft-Ez-PZ-Server-Auto-Ingestor/releases/download/latest/mcserver">
+  <a href="https://github.com/LunarSamurai/Minecraft-Ez-PZ-Server-Auto-Ingestor/releases/download/v1.0.0/mcserver">
     <img src="https://img.shields.io/badge/Download-Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Download for Linux"/>
   </a>
   &nbsp;&nbsp;
-  <a href="https://github.com/LunarSamurai/Minecraft-Ez-PZ-Server-Auto-Ingestor/releases/download/latest/mcserver">
+  <a href="https://github.com/LunarSamurai/Minecraft-Ez-PZ-Server-Auto-Ingestor/releases/download/v1.0.0/mcserver">
     <img src="https://img.shields.io/badge/Download-macOS-000000?style=for-the-badge&logo=apple&logoColor=white" alt="Download for macOS"/>
   </a>
 </p>
