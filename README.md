@@ -1,12 +1,147 @@
 # 🎮 Minecraft EZ-PZ Server Manager - For Da Bois
 
 A high-performance, feature-rich Minecraft server manager written in Go with a beautiful terminal UI, CurseForge modpack support, and comprehensive server management features.
-All you need is a directory called /server, unzip your modpack in there, and run this bad boy against that.... just like that... EZ PZ
 
-![Demo:](screenshots/Screenshot_2025-12-04_013510.png)
+![Demo](screenshots/Screenshot_2025-12-04_013510.png)
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Go Version](https://img.shields.io/badge/go-%3E%3D1.21-00ADD8.svg)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)
+
+---
+
+## 📥 Download
+
+<p align="center">
+  <a href="https://github.com/LunarSamurai/Minecraft-Ez-PZ-Server-Auto-Ingestor/releases/latest/download/mcserver-ez-pz.exe">
+    <img src="https://img.shields.io/badge/Download-Windows%20(.exe)-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="Download for Windows"/>
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://github.com/LunarSamurai/Minecraft-Ez-PZ-Server-Auto-Ingestor/releases/latest/download/mcserver">
+    <img src="https://img.shields.io/badge/Download-Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Download for Linux"/>
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://github.com/LunarSamurai/Minecraft-Ez-PZ-Server-Auto-Ingestor/releases/latest/download/mcserver">
+    <img src="https://img.shields.io/badge/Download-macOS-000000?style=for-the-badge&logo=apple&logoColor=white" alt="Download for macOS"/>
+  </a>
+</p>
+
+---
+
+## 🚀 Quick Start Guide
+
+### Step 1: Create Your Folder Structure
+
+```
+📁 MyMinecraftServer/
+├── 📄 mcserver-ez-pz.exe    ← Put the downloaded file here
+└── 📁 server/               ← Create this folder
+    └── 📦 (your modpack)    ← Unzip your server pack here
+```
+
+### Step 2: Download Your Server Modpack
+
+1. Go to [CurseForge](https://www.curseforge.com/minecraft/modpacks)
+2. Find your modpack and download the **Server Pack** (not the client!)
+3. Unzip the server pack contents into the `server/` folder
+
+### Step 3: Run It!
+
+**Windows:**
+```powershell
+.\mcserver-ez-pz.exe --ram-min 2G --ram-max 8G --server-dir ./server
+```
+
+**Linux/macOS:**
+```bash
+./mcserver --ram-min 2G --ram-max 8G --server-dir ./server
+```
+
+That's it! **EZ PZ** 🎉
+
+---
+
+## 📋 Detailed Setup Instructions
+
+### For Windows Users
+
+1. **Create a new folder** anywhere on your computer (e.g., `C:\Games\MyMinecraftServer`)
+
+2. **Download** `mcserver-ez-pz.exe` using the button above and put it in that folder
+
+3. **Create a `server` folder** inside your main folder:
+   ```
+   C:\Games\MyMinecraftServer\
+   ├── mcserver-ez-pz.exe
+   └── server\
+   ```
+
+4. **Download your modpack's server files** from CurseForge:
+   - Go to your modpack page
+   - Look for "Server Pack" or "Server Files" in the downloads
+   - Download the ZIP file
+
+5. **Extract the server pack** directly into the `server` folder:
+   ```
+   C:\Games\MyMinecraftServer\
+   ├── mcserver-ez-pz.exe
+   └── server\
+       ├── mods\
+       ├── config\
+       ├── libraries\
+       ├── run.sh
+       └── ... (other modpack files)
+   ```
+
+6. **Open PowerShell/Terminal** in your main folder and run:
+   ```powershell
+   .\mcserver-ez-pz.exe --ram-min 2G --ram-max 10G --server-dir ./server
+   ```
+
+### For Linux/macOS Users
+
+```bash
+# Create folder structure
+mkdir -p ~/minecraft-server/server
+
+# Download the binary (or build from source)
+cd ~/minecraft-server
+
+# Make it executable
+chmod +x mcserver
+
+# Extract your server modpack into ./server/
+
+# Run it
+./mcserver --ram-min 2G --ram-max 8G --server-dir ./server
+```
+
+---
+
+## ⚠️ Requirements
+
+| Requirement | Details |
+|-------------|---------|
+| **Java** | Java 17 or later ([Download from Adoptium](https://adoptium.net/temurin/releases/?version=17)) |
+| **RAM** | Minimum 4GB free, 8GB+ recommended for modpacks |
+| **OS** | Windows 10/11, Linux, or macOS |
+
+### Java Installation
+
+Make sure Java 17 is installed and in your PATH:
+
+```bash
+java -version
+# Should show: openjdk version "17.x.x" or similar
+```
+
+If you have multiple Java versions, specify the path:
+
+```powershell
+.\mcserver-ez-pz.exe --java "C:\Program Files\Java\jdk-17\bin\java.exe" --ram-max 8G --server-dir ./server
+```
+
+---
 
 ## ✨ Features
 
@@ -15,87 +150,57 @@ All you need is a directory called /server, unzip your modpack in there, and run
 ![UI Screenshot](screenshots/Screenshot_2025-12-04_013518.png)
 
 - Real-time server statistics dashboard
-- TPS, memory, CPU, and bandwidth monitoring with visual graphs
+- TPS, memory, CPU, and bandwidth monitoring
 - Player list with join times and session duration
 - Color-coded event log (joins, leaves, warnings, errors)
 - Interactive console with command input
 - Responsive layout that adapts to terminal size
 
 ### 📦 CurseForge Integration
+
 - Download modpacks directly by project ID or name
 - Automatic server pack detection and installation
 - Supports Forge, Fabric, and NeoForge mod loaders
-- Automatic mod downloads from manifest
 
 ### 🔧 Server Management
+
 - Graceful shutdown with save-all
-- Auto-restart on crash with configurable delay
-- Optimized JVM flags (Aikar's flags) for best performance
+- Auto-restart on crash
+- Optimized JVM flags (Aikar's flags)
 - Automatic EULA acceptance
-- Server.properties configuration
 
 ### 💾 Backup System
+
 - Scheduled world backups
 - Configurable backup interval
 - Automatic cleanup of old backups
-- Backup restoration support
 
 ### 📊 Statistics Tracking
+
 - TPS (Ticks Per Second) monitoring
 - Memory usage with progress bars
 - CPU utilization tracking
 - Network bandwidth (in/out)
 - Player count and session times
-- Event history with timestamps
 
-## 📥 Installation
+---
 
-### Prerequisites
-- Go 1.21 or later
-- Java 17 or later (for Minecraft server)
+## 🎮 TUI Keyboard Shortcuts
 
-### Build from Source
+| Key | Action |
+|-----|--------|
+| `Tab` | Toggle command input focus |
+| `Enter` | Execute command (when input focused) |
+| `↑/↓` | Scroll console |
+| `←/→` | Switch panels |
+| `End` | Resume auto-scroll |
+| `R` | Restart server |
+| `S` | Start/Stop server |
+| `Q` | Quit application |
 
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/mcserver-manager.git
-cd mcserver-manager
+---
 
-# Build the binary
-go build -o mcserver .
-
-# For Windows executable
-go build -o mcserver-ez-pz.exe .
-
-# Or install globally
-go install .
-```
-
-## 🚀 Usage
-
-### Basic Usage
-
-```bash
-# Start a vanilla server with default settings
-./mcserver
-.\mcserver-ez-pz.exe
-
-# Start with custom RAM allocation
-./mcserver --ram-min 2G --ram-max 8G --server-dir ./server                                             #Linux/Mac
-.\mcserver-ez-pz.exe --ram-min 2G --ram-max 10G --server-dir ./server                                  #Windows
-
-# Start on a different port
-./mcserver --port 25566 --ram-min 2G --ram-max 8G --server-dir ./server                                #Linux/Mac
-.\mcserver-ez-pz.exe --port 25566 --ram-min 2G --ram-max 8G --server-dir ./server                      #Windows
-
-#Or Use Playit.gg
-./mcserver --ram-min 2G --ram-max 8G --server-dir ./server                                #Linux/Mac
-.\mcserver-ez-pz.exe --ram-min 2G --ram-max 8G --server-dir ./server                      #Windows
-
-#Ensure you run and send up Playit.gg to avoid the need of portforwarding 
-```
-
-### Command Line Arguments
+## ⚙️ Command Line Options
 
 | Flag | Short | Default | Description |
 |------|-------|---------|-------------|
@@ -104,151 +209,87 @@ go install .
 | `--port` | `-p` | `25565` | Server port |
 | `--server-dir` | `-d` | `./server` | Server directory path |
 | `--java` | | `java` | Path to Java executable |
-| `--java-args` | | | Additional Java arguments |
-| `--modpack` | `-k` | | CurseForge modpack ID or slug |
-| `--modpack-version` | | `latest` | Specific modpack version |
 | `--auto-restart` | `-r` | `true` | Auto-restart on crash |
 | `--backup-enabled` | | `false` | Enable scheduled backups |
-| `--backup-interval` | | `60` | Backup interval in minutes |
-| `--backup-dir` | | `./backups` | Backup directory path |
-| `--max-backups` | | `10` | Maximum backups to keep |
+| `--backup-interval` | | `60` | Backup interval (minutes) |
 | `--no-tui` | | `false` | Disable TUI, use console mode |
 
-### Examples
+---
+
+## 🌐 Multiplayer Setup
+
+### Option 1: Port Forwarding
+
+Forward port `25565` on your router and share your public IP.
+
+### Option 2: Playit.gg (Recommended - No Port Forward!)
+
+1. Download [Playit.gg](https://playit.gg/)
+2. Run the Playit agent
+3. Create a Minecraft tunnel
+4. Share the `xxxxx.playit.gg` address with friends
+
+Your friends need to install the **same modpack client version** to connect!
+
+---
+
+## 🔨 Building from Source
 
 ```bash
-# Full featured server with modpack and backups
-./mcserver \
-  --modpack 12345 \
-  --ram-min 4G \
-  --ram-max 12G \
-  --port 25565 \
-  --backup-enabled \
-  --backup-interval 30 \
-  --max-backups 20
+# Clone the repository
+git clone https://github.com/YOUR_USERNAME/mcserver-manager.git
+cd mcserver-manager
 
-# Simple server without TUI
-./mcserver --no-tui --ram-max 4G
-
-# Development server on alternate port
-./mcserver --port 25566 --server-dir ./dev-server
+# Build
+go build -o mcserver-ez-pz.exe .   # Windows
+go build -o mcserver .              # Linux/macOS
 ```
 
-## 🎮 TUI Keyboard Shortcuts
-
-| Key | Action |
-|-----|--------|
-| `Tab` | Toggle command input focus |
-| `Enter` | Execute command (when input focused) |
-| `R` | Restart server |
-| `S` | Start/Stop server |
-| `↑/↓` | Scroll console |
-| `Q` | Quit application |
-
-## 📦 CurseForge Modpacks
-
-### Using a Modpack
-
-1. Find your modpack on [CurseForge](https://www.curseforge.com/minecraft/modpacks)
-2. Get the project ID from the URL or use the modpack name
-3. Run with the `--modpack` flag:
-
-```bash
-# Using project ID
-./mcserver --modpack 123456                                               #Linux/Mac
-.\mcserver-ez-pz.exe --modpack 123456                                     #Windows
-
-# Using modpack name (will search for best match)
-./mcserver --modpack "all-the-mods-9"                                     #Linux/Mac
-.\mcserver-ez-pz.exe --modpack "all-the-mods-9"                           #Windows
-```
-
-### API Key (Optional)
-
-For better rate limits, set a CurseForge API key:
-
-```bash
-export CURSEFORGE_API_KEY=your-api-key
-./mcserver --modpack 123456                                             #Linux/Mac
-.\mcserver-ez-pz.exe --modpack 123456                                   #Windows
-```
-
-Get an API key at [CurseForge Console](https://console.curseforge.com/).
-
-## 🔧 JVM Optimization
-
-The server manager automatically applies optimized JVM flags based on Aikar's recommendations:
-
-- G1GC garbage collector with tuned settings
-- Optimized memory allocation
-- Reduced GC pause times
-- Better overall performance
-
-Custom flags can be added with `--java-args`:
-
-```bash
-./mcserver --java-args "-XX:+UseZGC -Dlog4j2.formatMsgNoLookups=true"                   #Linux/Mac
-.\mcservar-ez-pz.exe --java-args "-XX:+UseZGC -Dlog4j2.formatMsgNoLookups=true"         #Windows
-```
-
-## 💾 Backup System
-
-Enable automatic backups with:
-
-```bash
-./mcserver \
-  --backup-enabled \
-  --backup-interval 60 \
-  --backup-dir ./my-backups \
-  --max-backups 10
-```
-
-Backups include:
-- World data (overworld, nether, end)
-- All dimension folders
-- Compressed as ZIP files
-- Named with timestamps
-
-## 📊 Statistics Explained
-
-### TPS (Ticks Per Second)
-- **20.0**: Perfect performance
-- **19.0+**: Excellent
-- **17.0-19.0**: Good
-- **14.0-17.0**: Moderate lag
-- **<14.0**: Severe lag
-
-### Memory Usage
-- Shows current heap usage vs maximum
-- Color-coded based on usage percentage
-- Visual progress bar
-
-### Bandwidth
-- Real-time upload/download speeds
-- Total data transferred
+---
 
 ## 🐛 Troubleshooting
 
-### Server won't start
+<details>
+<summary><b>Server won't start</b></summary>
+
 - Check Java version: `java -version` (needs 17+)
-- Verify server JAR exists in server directory
-- Check port availability: `netstat -tuln | grep 25565`
+- Make sure server files are in the `server/` directory
+- Check if port 25565 is already in use
 
-### Modpack download fails
-- Verify the modpack ID is correct
-- Check internet connectivity
-- Try setting a CurseForge API key
+</details>
 
-### High memory usage
-- Increase `--ram-max` value
-- Reduce view distance in server.properties
-- Check for memory leaks in mods
+<details>
+<summary><b>Java version issues</b></summary>
 
-### TPS drops
-- Reduce entity counts
-- Optimize redstone contraptions
-- Check for problematic chunks
-- Consider using a performance mod
+If you have multiple Java versions:
+
+```powershell
+.\mcserver-ez-pz.exe --java "C:\Program Files\Java\jdk-17\bin\java.exe" --server-dir ./server
+```
+
+</details>
+
+<details>
+<summary><b>Out of memory errors</b></summary>
+
+Increase RAM allocation:
+
+```powershell
+.\mcserver-ez-pz.exe --ram-min 4G --ram-max 12G --server-dir ./server
+```
+
+</details>
+
+<details>
+<summary><b>TPS drops / lag</b></summary>
+
+- Reduce `view-distance` in `server/server.properties`
+- Pre-generate the world with Chunky mod
+- Check for problematic mods/chunks
+
+</details>
+
+---
 
 ## 📄 License
 
@@ -256,10 +297,10 @@ MIT License - see LICENSE file for details.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Feel free to submit a Pull Request.
 
-## 🙏 Acknowledgments
+---
 
-- [Aikar's Flags](https://docs.papermc.io/paper/aikars-flags) for JVM optimization
-- [Charm](https://charm.sh/) for the excellent TUI libraries
-- [CurseForge](https://www.curseforge.com/) for modpack hosting
+<p align="center">
+  Made with ❤️ for da bois
+</p>
