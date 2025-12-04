@@ -1,6 +1,9 @@
-# 🎮 Minecraft Server Manager
+# 🎮 Minecraft EZ-PZ Server Manager - For Da Bois
 
 A high-performance, feature-rich Minecraft server manager written in Go with a beautiful terminal UI, CurseForge modpack support, and comprehensive server management features.
+All you need is a directory called /server, unzip your modpack in there, and run this bad boy against that.... just like that... EZ PZ
+
+![Demo:](screenshots/Screenshot_2025-12-04_013510.png)
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Go Version](https://img.shields.io/badge/go-%3E%3D1.21-00ADD8.svg)
@@ -8,6 +11,9 @@ A high-performance, feature-rich Minecraft server manager written in Go with a b
 ## ✨ Features
 
 ### 🖥️ Beautiful Terminal UI
+
+![UI Screenshot](screenshots/Screenshot_2025-12-04_013518.png)
+
 - Real-time server statistics dashboard
 - TPS, memory, CPU, and bandwidth monitoring with visual graphs
 - Player list with join times and session duration
