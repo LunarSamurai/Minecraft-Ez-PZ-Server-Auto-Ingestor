@@ -12,7 +12,7 @@ A high-performance, feature-rich Minecraft server manager written in Go with a b
 
 ## 📥 Download
 
-<p align="center">
+<p align="left">
   <a href="https://github.com/LunarSamurai/Minecraft-Ez-PZ-Server-Auto-Ingestor/releases/latest/download/mcserver-ez-pz.exe">
     <img src="https://img.shields.io/badge/Download-Windows%20(.exe)-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="Download for Windows"/>
   </a>
