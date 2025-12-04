@@ -8,7 +8,7 @@ A high-performance, feature-rich Minecraft server manager written in Go with a b
 ![Go Version](https://img.shields.io/badge/go-%3E%3D1.21-00ADD8.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)
 
-----
+-----
 
 ## 📥 Download
 
@@ -26,7 +26,7 @@ A high-performance, feature-rich Minecraft server manager written in Go with a b
   </a>
 </p>
 
-----
+-----
 
 ## 🚀 Quick Start Guide
 
