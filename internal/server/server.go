@@ -56,7 +56,7 @@ var (
 	playerJoinRegex  = regexp.MustCompile(`\[Server thread/INFO\].*?: (\w+) joined the game`)
 	playerLeaveRegex = regexp.MustCompile(`\[Server thread/INFO\].*?: (\w+) left the game`)
 	playerListRegex  = regexp.MustCompile(`There are (\d+) of a max of (\d+) players online`)
-	tpsRegex         = regexp.MustCompile(`TPS from last \d+s: ([\d.]+)`)
+	tpsRegex         = regexp.MustCompile(`Mean TPS: ([\d.]+)`)
 	doneRegex        = regexp.MustCompile(`Done \([\d.]+s\)! For help, type "help"`)
 	chatRegex        = regexp.MustCompile(`<(\w+)> (.+)`)
 	uuidRegex        = regexp.MustCompile(`UUID of player (\w+) is ([a-f0-9-]+)`)
@@ -79,6 +79,7 @@ func New(config *Config) *Server {
 			Players:      make([]Player, 0),
 			RecentEvents: make([]ServerEvent, 0),
 			MaxPlayers:   20,
+			TPS:          20.0, // Default to 20 TPS
 		},
 	}
 
@@ -196,6 +197,7 @@ func (s *Server) Start() error {
 	// Start monitoring
 	go s.monitorProcess()
 	go s.updateStatsLoop()
+	go s.requestTPSLoop()
 
 	// Start backup scheduler if enabled
 	if s.config.BackupEnabled && s.backupMgr != nil {
@@ -265,7 +267,10 @@ func (s *Server) SendCommand(command string) error {
 		return fmt.Errorf("failed to send command: %w", err)
 	}
 
-	s.addEvent(EventCommand, fmt.Sprintf("Executed: %s", command))
+	// Don't log TPS commands to avoid spam
+	if command != "forge tps" {
+		s.addEvent(EventCommand, fmt.Sprintf("Executed: %s", command))
+	}
 	return nil
 }
 
@@ -305,6 +310,26 @@ func (s *Server) RunConsole() error {
 		return s.cmd.Wait()
 	}
 	return nil
+}
+
+// requestTPSLoop periodically requests TPS from the server
+func (s *Server) requestTPSLoop() {
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
+
+	// Wait for server to fully start
+	time.Sleep(15 * time.Second)
+
+	for {
+		select {
+		case <-s.ctx.Done():
+			return
+		case <-ticker.C:
+			if s.stats.Status == StatusRunning {
+				s.SendCommand("forge tps")
+			}
+		}
+	}
 }
 
 // copyLocalMods copies mods from the current directory's Mods folder to the server
@@ -741,7 +766,7 @@ func (s *Server) parseOutput(line string) {
 		return
 	}
 
-	// Check for TPS
+	// Check for TPS (Forge format: "Mean TPS: 20.00")
 	if matches := tpsRegex.FindStringSubmatch(line); len(matches) > 1 {
 		tps, _ := strconv.ParseFloat(matches[1], 64)
 		s.statsMutex.Lock()
@@ -768,7 +793,11 @@ func (s *Server) parseOutput(line string) {
 		return
 	}
 
-	// Check for errors/warnings
+	// Check for errors/warnings (but not TPS spam)
+	if strings.Contains(line, "Mean TPS:") || strings.Contains(line, "Mean tick time:") {
+		return // Skip TPS output from being logged as events
+	}
+
 	if strings.Contains(line, "[WARN]") || strings.Contains(line, "WARN]") {
 		s.addEvent(EventWarning, line)
 		return

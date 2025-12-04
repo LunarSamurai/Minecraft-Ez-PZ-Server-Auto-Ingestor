@@ -45,10 +45,11 @@ var rootCmd = &cobra.Command{
 ║    | |\/| | |     \___ \ / _ \ '__\ \ / / _ \ '__|                   ║
 ║    | |  | | |___   ___) |  __/ |   \ V /  __/ |                      ║
 ║    |_|  |_|\____| |____/ \___|_|    \_/ \___|_|                      ║
-║                                                                       ║
-║    🚀 High-Performance Minecraft Server Manager                      ║
-║    📦 CurseForge Modpack Support                                     ║
-║    📊 Real-time Statistics & Beautiful TUI                           ║
+║   =================================================                  ║
+║                                                                      ║
+║    High-Performance Minecraft Server Manager                         ║
+║    CurseForge Modpack Support                                        ║
+║    Real-time Statistics & Beautiful TUI                              ║
 ╚══════════════════════════════════════════════════════════════════════╝
 
 A powerful, feature-rich Minecraft server manager with:

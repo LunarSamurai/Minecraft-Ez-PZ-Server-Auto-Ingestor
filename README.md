@@ -64,6 +64,9 @@ cd mcserver-manager
 # Build the binary
 go build -o mcserver .
 
+# For Windows executable
+go build -o mcserver-ez-pz.exe .
+
 # Or install globally
 go install .
 ```
@@ -75,15 +78,21 @@ go install .
 ```bash
 # Start a vanilla server with default settings
 ./mcserver
+.\mcserver-ez-pz.exe
 
 # Start with custom RAM allocation
-./mcserver --ram-min 2G --ram-max 8G
+./mcserver --ram-min 2G --ram-max 8G --server-dir ./server                                             #Linux/Mac
+.\mcserver-ez-pz.exe --ram-min 2G --ram-max 10G --server-dir ./server                                  #Windows
 
 # Start on a different port
-./mcserver --port 25566
+./mcserver --port 25566 --ram-min 2G --ram-max 8G --server-dir ./server                                #Linux/Mac
+.\mcserver-ez-pz.exe --port 25566 --ram-min 2G --ram-max 8G --server-dir ./server                      #Windows
 
-# Start with a CurseForge modpack
-./mcserver --modpack 123456 --ram-max 8G
+#Or Use Playit.gg
+./mcserver --ram-min 2G --ram-max 8G --server-dir ./server                                #Linux/Mac
+.\mcserver-ez-pz.exe --ram-min 2G --ram-max 8G --server-dir ./server                      #Windows
+
+#Ensure you run and send up Playit.gg to avoid the need of portforwarding 
 ```
 
 ### Command Line Arguments
@@ -146,10 +155,12 @@ go install .
 
 ```bash
 # Using project ID
-./mcserver --modpack 123456
+./mcserver --modpack 123456                                               #Linux/Mac
+.\mcserver-ez-pz.exe --modpack 123456                                     #Windows
 
 # Using modpack name (will search for best match)
-./mcserver --modpack "all-the-mods-9"
+./mcserver --modpack "all-the-mods-9"                                     #Linux/Mac
+.\mcserver-ez-pz.exe --modpack "all-the-mods-9"                           #Windows
 ```
 
 ### API Key (Optional)
@@ -158,7 +169,8 @@ For better rate limits, set a CurseForge API key:
 
 ```bash
 export CURSEFORGE_API_KEY=your-api-key
-./mcserver --modpack 123456
+./mcserver --modpack 123456                                             #Linux/Mac
+.\mcserver-ez-pz.exe --modpack 123456                                   #Windows
 ```
 
 Get an API key at [CurseForge Console](https://console.curseforge.com/).
@@ -175,7 +187,8 @@ The server manager automatically applies optimized JVM flags based on Aikar's re
 Custom flags can be added with `--java-args`:
 
 ```bash
-./mcserver --java-args "-XX:+UseZGC -Dlog4j2.formatMsgNoLookups=true"
+./mcserver --java-args "-XX:+UseZGC -Dlog4j2.formatMsgNoLookups=true"                   #Linux/Mac
+.\mcservar-ez-pz.exe --java-args "-XX:+UseZGC -Dlog4j2.formatMsgNoLookups=true"         #Windows
 ```
 
 ## 💾 Backup System
